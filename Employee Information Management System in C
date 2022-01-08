@@ -1,0 +1,217 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+typedef struct
+{
+    char full_name[100];
+    int employee_ID;
+    float salary;
+} Employee;
+
+void addEmployeeDetails(Employee EmployeeDB[], int n);
+void findEmployee(Employee EmployeeDB[], int n);
+void updateEmployee(Employee EmployeeDB[], int n);
+void countEmployees(int n);
+void printDB(Employee EmployeeDB[], int n);
+void ReadDB(FILE *f, Employee EmployeeDB[], int *n);
+void WriteDB(FILE *f, Employee EmployeeDB[], int n);
+
+int main()
+{
+    start();
+    return 0;
+}
+void start()
+{
+    Employee EmployeeDB[100];
+    int n = 0, option;
+    FILE *f;
+    f = fopen("Employee_data.txt", "r");
+    if(f!=NULL)
+    {
+        ReadDB(f, EmployeeDB, &n);
+
+        fclose(f);
+    }
+printf("\n\n\n\t\t\t------------------------------------------------------------\n");
+    printf("\t\t\t\t\t  * Employee Database *\n");
+    printf("\t\t\t------------------------------------------------------------");
+
+    while(1)
+    {
+        printf("\n\t\t\t------------- 1. Add Employee Details:         -------------\n");
+        printf("\t\t\t------------- 2. Find Employee Record:         -------------\n");
+        printf("\t\t\t------------- 3. Update Employee Record:       -------------\n");
+        printf("\t\t\t------------- 4. Count Employees:              -------------\n");
+        printf("\t\t\t------------- 5. Print the Database:           -------------\n");
+        printf("\t\t\t------------- 6. Exit:                         -------------\n");
+        printf("\t\t\t------------------------------------------------------------");
+
+        printf("\n\n\t\t\t\t\t\tEnter option: ");
+        scanf("%d", &option);
+
+        if(option==6)
+            break;
+
+        switch(option)
+        {
+        case 1:
+            addEmployeeDetails(EmployeeDB, n);
+            n++;
+            break;
+        case 2:
+            findEmployee(EmployeeDB, n);
+            break;
+
+        case 3:
+            updateEmployee(EmployeeDB, n);
+            break;
+        case 4:
+            countEmployees(n);
+            break;
+        case 5:
+            printDB(EmployeeDB, n);
+            break;
+        }
+    }
+    f = fopen("Employee_data.txt", "w");
+    WriteDB(f, EmployeeDB, n);
+    fclose(f);
+
+    return 0;
+}
+
+
+void addEmployeeDetails(Employee EmployeeDB[], int n)
+{
+    Employee emp;
+    int flag, i=0;
+    do
+    {
+        printf(" Enter Employee's-ID: ");
+        scanf("%d", &emp.employee_ID);
+        flag = 0;
+        while(i<n)
+        {
+            if(EmployeeDB[i].employee_ID == emp.employee_ID)
+            {
+                printf(" ****ERROR! EMPLOYEE ID ALREADY EXIST****\n");
+                printf("\t...PLEASE TRY AGAIN...\n");
+                flag = 1;
+            }
+            i++;
+        }
+    }
+    while(flag!=0);
+    getchar();
+    printf("Enter Employee's Full Name: ");
+    //scanset
+    scanf("%[^\n]", emp.full_name);
+    printf("Enter Employee's salary: ");
+    scanf("%f", &emp.salary);
+    EmployeeDB[n] = emp;
+    system("cls");
+    printf("\n\n\n\n\n\t\t\t\t\t...RECORD HAS BEEN ADDED SUCCESSFULL...");
+    sleep(2);
+    system("cls");
+}
+void findEmployee(Employee EmployeeDB[], int n)
+{
+    int i, id;
+    printf("Enter Employee's-ID to search: ");
+    scanf("%d", &id);
+    for(i=0; i<n; i++)
+    {
+        if(EmployeeDB[i].employee_ID == id)
+        {
+            printf("Employee's Name: %s\n", EmployeeDB[i].full_name);
+            printf("Employee's id : %d\n", EmployeeDB[i].employee_ID);
+            printf("Salary : %.2f\n", EmployeeDB[i].salary);
+            return;
+        }
+    }
+    printf("Not found\n");
+}
+void updateEmployee(Employee EmployeeDB[], int n)
+{
+    int id, i, op;
+    printf("Enter Employee-ID to update: ");
+    scanf("%d", &id);
+    for(i=0; i<n; i++)
+    {
+        if(EmployeeDB[i].employee_ID == id)
+        {
+            printf("\n1. Update ID: ");
+            printf("\n2. Update name: ");
+            printf("\n3. Update salary: ");
+            printf("\nEnter option: ");
+            scanf("%d", &op);
+            if(op==1)
+            {
+                printf("Enter ID: ");
+                getchar();
+                scanf("%d", &EmployeeDB[i].employee_ID);
+            }
+            else if (op==2)
+            {
+                printf("Enter name: ");
+                getchar();
+                scanf("%[^\n]", EmployeeDB[i].full_name);
+            }
+            else
+            {
+                printf("Enter salary: ");
+                scanf("%f", &EmployeeDB[i].salary);
+            }
+
+        }
+        else
+        {
+            system("cls");
+            printf("\n\n\t\t**PLEASE TRY AGAIN WITH VALID ID**\n\n");
+            sleep(3);
+            system("cls");
+        }
+        return ;
+    }
+}
+void countEmployees(int n)
+{
+    printf("Total number of Employees in the system = %d\n", n);
+}
+void printDB(Employee EmployeeDB[], int n)
+{
+    int i;
+    printf("-------------------------------------------\n");
+    printf(" Employee-Name  |  Employee-ID  |  Salary\n");
+    printf("-------------------------------------------\n");
+    for(i=0; i<n; i++)
+    {
+        printf("%-20s%-15d%.2f\n", EmployeeDB[i].full_name, EmployeeDB[i].employee_ID, EmployeeDB[i].salary);
+    }
+}
+
+void ReadDB(FILE *f, Employee EmployeeDB[], int *n)
+{
+    char line[100];
+    int i = 0;
+
+    while(!feof(f))
+    {
+        fgets(EmployeeDB[i].full_name, 20, f);
+        if(feof(f))
+            break;
+        fscanf(f, "%d%f\n", &EmployeeDB[i].employee_ID, &EmployeeDB[i].salary);
+        i++;
+    }
+    *n = i;
+}
+
+void WriteDB(FILE *f, Employee EmployeeDB[], int n)
+{
+    int i;
+    for(i=0; i<n; i++)
+    {
+        fprintf(f, "%-20s\n%d\t%.2f\n", EmployeeDB[i].full_name, EmployeeDB[i].employee_ID, EmployeeDB[i].salary);
+    }
+}
